@@ -1,0 +1,129 @@
+<html>
+  <head><title>jsbn Performance</title></head>
+  <body>
+    <h1>Performance</h1>
+
+<code>jsbn</code> is one of the fastest JavaScript bignum libraries
+currently available.  Google uses it as part of their
+<a href="http://v8.googlecode.com/svn/data/benchmarks/v6/run.html">benchmark suite</a>
+for JavaScript.
+<p>
+Since <code>jsbn</code> is pure JavaScript, its performance will
+depend on the hardware as well as the quality of the JavaScript
+execution environment.
+<p>
+The following table shows the times taken for various public-key
+operations on a cross-section of browsers and hardware.
+<p>
+<table border=1>
+<tr>
+  <th>Operation</th>
+  <th>Chrome (PC)</th>
+  <th>Firefox (PC)</th>
+  <th>IE (PC)</th>
+  <th>Mobile</th>
+</tr>
+<tr align=right>
+  <td>RSA public, 512 bit, e=3</td>
+  <td>0ms</td>
+  <td>1ms</td>
+  <td>4ms</td>
+  <td>40ms</td>
+</tr>
+<tr align=right>
+  <td>RSA public, 512 bit, e=F4</td>
+  <td>1ms</td>
+  <td>6ms</td>
+  <td>20ms</td>
+  <td>140ms</td>
+</tr>
+<tr align=right>
+  <td>RSA public, 1024 bit, e=3</td>
+  <td>1ms</td>
+  <td>3ms</td>
+  <td>10ms</td>
+  <td>90ms</td>
+</tr>
+<tr align=right>
+  <td>RSA public, 1024 bit, e=F4</td>
+  <td>2ms</td>
+  <td>15ms</td>
+  <td>70ms</td>
+  <td>180ms</td>
+</tr>
+<tr align=right>
+  <td>RSA private, 512 bit</td>
+  <td>5ms</td>
+  <td>75ms</td>
+  <td>190ms</td>
+  <td>270ms</td>
+</tr>
+<tr align=right>
+  <td>RSA private, 1024 bit</td>
+  <td>30ms</td>
+  <td>300ms</td>
+  <td>1250ms(*)</td>
+  <td>650ms</td>
+</tr>
+<tr align=right>
+  <td>EC multiply, 128 bit</td>
+  <td>25ms</td>
+  <td>200ms</td>
+  <td>500ms</td>
+  <td>400ms</td>
+</tr>
+<tr align=right>
+  <td>EC multiply, 160 bit</td>
+  <td>30ms</td>
+  <td>450ms</td>
+  <td>820ms</td>
+  <td>600ms</td>
+</tr>
+<tr align=right>
+  <td>EC multiply, 192 bit</td>
+  <td>35ms</td>
+  <td>750ms</td>
+  <td>1250ms</td>
+  <td>720ms</td>
+</tr>
+<tr align=right>
+  <td>EC multiply, 224 bit</td>
+  <td>50ms</td>
+  <td>900ms</td>
+  <td>2500ms(*)</td>
+  <td>900ms</td>
+</tr>
+<tr align=right>
+  <td>EC multiply, 256 bit</td>
+  <td>65ms</td>
+  <td>1300ms</td>
+  <td>3100ms(*)</td>
+  <td>1300ms</td>
+</tr>
+<tr align=right>
+  <td>BB1 encrypt, 192 bit (IETF)</td>
+  <td>80ms</td>
+  <td>800ms</td>
+  <td>2900ms(*)</td>
+  <td>1200ms</td>
+</tr>
+<tr align=right>
+  <td>BB1 encrypt, 512 bit ("1024")</td>
+  <td>300ms</td>
+  <td>4500ms</td>
+  <td>15000ms</td>
+  <td>4600ms</td>
+</tr>
+</table>
+<p>EC multiply = Elliptic curve point multiplication, bit size denotes
+both curve prime size and scalar multiplier size.
+<p>PC = Win7 64-bit, Intel Core i5 M520 (2.4GHz)
+<br>Mobile = Android 2.2 "Froyo" on Samsung Epic 4G
+<p>Browsers used:<br>
+Google Chrome version 10.0.648.151<br>
+Mozilla Firefox version 3.6.15<br>
+Microsoft Internet Explorer version 8.0.7601.17514
+<p>
+(*) Slow script dialog triggered
+  </body>
+</html>
