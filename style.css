@@ -1,0 +1,15 @@
+html, body {
+	font-family: Helvetica, "Helvetica Neue", sans-serif;
+}
+
+section#footer {
+	font-size: 0.795em;
+}
+
+
+#debug {
+	border: 3px #FED dotted;
+	color: #655;
+	font-size: 0.8em;
+}
+
