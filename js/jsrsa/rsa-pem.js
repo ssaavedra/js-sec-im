@@ -23,6 +23,7 @@
 //   new lines from PEM formatted RSA private key string.
 //
 if(dojo && dojo.provide) dojo.provide("jsrsa.rsa-pem");
+dojo.require("jsrsa.asn1hex");
 
 function _rsapem_pemToBase64(sPEMPrivateKey) {
   var s = sPEMPrivateKey;

@@ -1,6 +1,8 @@
 dojo.provide("sec-im.rsa-pem");
 dojo.require("sec-im.rsa");
 
+dojo.require("dojox.encoding.base64");
+dojo.require("jsrsa.rsa-pem");
 
 // Extend string object
 String.prototype.splitAt = String.prototype.splitAt || function(chunkSize) {
@@ -11,12 +13,16 @@ String.prototype.splitAt = String.prototype.splitAt || function(chunkSize) {
 	return a
 }
 
-String.prototype.toHex = String.prototype.toHex || function() {
-	var a = [];
-	for(var i = 0; i < this.length; i++) {
-		a.push(byte2Hex(this.charCodeAt(i).toString(16)));
+String.prototype.toByteArray = String.prototype.toByteArray || function() {
+	var a = [], i = 0;
+	for(i = 0; i < this.length; i++) {
+		a[i] = this.charCodeAt(i);
 	}
-	return a.join('');
+	return a;
+}
+
+String.prototype.toBase64 = String.prototype.toBase64 || function() {
+	return dojox.encoding.base64.encode(this.toByteArray());
 }
 
 
@@ -80,21 +86,19 @@ function _rsapem_readPrivateKeyFromPEMString(keyPEM) {
 
 function _public2pem () {
 	var der = _public2der(this.n, this.e);
-	der = hex2b64(der);
 	var lines = der.splitAt(65).join("\n");
-	lines = "-----BEGIN RSA PUBLIC KEY-----\n" +
-			lines +
-			"\n-----END RSA PUBLIC KEY-----\n";
+	
+	lines = "-----BEGIN RSA PUBLIC KEY-----\n" + lines;
+	lines += "\n-----END RSA PUBLIC KEY-----\n";
 	return lines;
 }
 
 function _private2pem () {
-	var der = _private2der(this.n, this.e, this.d, this.p, this.q, this.dp, this.dq, this.co);
-	der = hex2b64(der);
+	var der = _private2der([this.n, this.e, this.d, this.p, this.q, this.dmp1, this.dmq1, this.coeff]);
 	var lines = der.splitAt(65).join("\n");
-	lines = "-----BEGIN RSA PRIVATE KEY-----\n" +
-			lines +
-			"\n-----END RSA PRIVATE KEY-----\n";
+	
+	lines = "-----BEGIN RSA PRIVATE KEY-----\n" + lines;
+	lines +="\n-----END RSA PRIVATE KEY-----\n";
 	return lines;
 }
 
@@ -136,10 +140,21 @@ function _public2der(n, e) {
 	var b = new ASNValue("BITSTRING", my_n + my_e).encode();
 	s = new ASNValue("SEQUENCE", s + b).encode();
 
-	return new ASNValue("SEQUENCE", s).encode().toHex();
+	return new ASNValue("SEQUENCE", s).encode().toBase64();
 	
 }
 
+function _private2der(a /* values: n, e, d, p, q, dp, dq, co */) {
+	var len = a.length, i;
+	
+	for(i = 0; i < len; i++) {
+		a[i] = new ASNValue("INTEGER", a[i]).encode();
+	}
+	var noise = new ASNValue("INTEGER", 0).encode();
+	
+	return new ASNValue("SEQUENCE", noise + a.join('')).encode().toBase64();
+	
+}
 
 
 RSAKey.prototype.readPublicFromPEM = _rsapem_readPrivateKeyFromPEMString;

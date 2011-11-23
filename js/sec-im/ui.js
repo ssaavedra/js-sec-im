@@ -49,7 +49,7 @@ sec_im.ui = {
 			var key = sec_im.ui.key;
 			
 			
-			this.div = new dijit.form.Form({id:"showkey_form"});
+			this.div = new dijit.form.Form({id:"showkey_form_" + this.form_id++});
 			this.pub = new dijit.form.Textarea({
 				name: "pubits",
 				value: key.pub2PEM()
@@ -78,9 +78,10 @@ sec_im.ui = {
 			title: "Show RSA Key in use",
 			content: "",
 			onHide: function() {
+				this.get('content').destroy();
 				this.set('content', '');
 			},
-			onShow: function() {
+			onFocus: function() {
 				this.set('content', sec_im.ui.showkey.ui());
 			}
 		});
