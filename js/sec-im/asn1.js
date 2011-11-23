@@ -28,9 +28,9 @@ function _public2der(n, e) {
 function _asnvalue_encode() {
 	var result = String.fromCharCode(this.tag);
 	var size = this.value.length;
-	if(size < 0x80)
+	if(size < 0x80) {
 		result += String.fromCharCode(size);
-	else {
+	} else {
 		var sizebuf = this.int2bin(size);
 		var firstByte = 0x80 + sizebuf.length;
 		result += String.fromCharCode(firstByte) + sizebuf;
@@ -89,6 +89,7 @@ function _bin2int(str) {
 		var curByte = x[i];
 		result += curByte << ((len - i - 1) << 3);
 	}
+	return result;
 }
 
 function _int2bin(integer) {
@@ -101,7 +102,7 @@ function _int2bin(integer) {
 	} while(integer > 0);
 	
 	
-	result = result.split('').reverse().join('');
+	return result.split('').reverse().join('');
 }
 
 // Protected
@@ -110,3 +111,4 @@ ASNValue.prototype.bin2int = _bin2int;
 
 // Public
 ASNValue.prototype.encode = _asnvalue_encode;
+ASNValue.prototype.decode = _asnvalue_decode;

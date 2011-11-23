@@ -5,10 +5,12 @@ for(x in requirements)
 	if(typeof requirements[x] == "string")
 		dojo.require("jsbn." + requirements[x]);
 
-requirements = "asn1hex|rsa-pem|rsa-sign|x509".split("|");
-for(x in requirements)
-	if(typeof requirements[x] == "string")
-		dojo.require("jsrsa." + requirements[x]);
+//requirements = "asn1hex|rsa-pem|rsa-sign|x509".split("|");
+//for(x in requirements)
+//	if(typeof requirements[x] == "string")
+//		dojo.require("jsrsa." + requirements[x]);
+dojo.require("sec-im.asn1");
+dojo.require("sec-im.rsa-pem");
 
 
 /**
@@ -59,4 +61,5 @@ function getKeyByLocalStorage() {
 	return RSAKey.instance(window.localStorage.rsa_pu,
 							window.localStorage.rsa_pr);
 }
+
 

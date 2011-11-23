@@ -7,8 +7,27 @@ String.prototype.splitAt = String.prototype.splitAt || function(chunkSize) {
 	var a = [], i = 0;
 	var loops = Math.ceil(this.length/chunkSize);
 	for(i = 0; i < loops; i++)
-		myArray.push(this.substr(i*chunkSize, chunkSize));
+		a.push(this.substr(i*chunkSize, chunkSize));
+	return a
 }
+
+String.prototype.toHex = String.prototype.toHex || function() {
+	var a = [];
+	for(var i = 0; i < this.length; i++) {
+		a.push(byte2Hex(this.charCodeAt(i).toString(16)));
+	}
+	return a.join('');
+}
+
+
+function hex2ba(h) {
+	  var a = new Array(h.length);
+	  for(var i = 0; 2*i < h.length; ++i) {
+	    a[i] = parseInt(h.substring(2*i,2*i+2),16);
+	  }
+	  return a;
+}
+
 
 
 function _rsapem_pemToBase64(sPEMPrivateKey) {
@@ -61,21 +80,21 @@ function _rsapem_readPrivateKeyFromPEMString(keyPEM) {
 
 function _public2pem () {
 	var der = _public2der(this.n, this.e);
-	der = hextob64(der);
-	var lines = str_splitAt(65).join("\n");
+	der = hex2b64(der);
+	var lines = der.splitAt(65).join("\n");
 	lines = "-----BEGIN RSA PUBLIC KEY-----\n"
 		+ lines
-		+ "-----END RSA PUBLIC KEY-----\n";
+		+ "\n-----END RSA PUBLIC KEY-----\n";
 	return lines;
 }
 
 function _private2pem () {
 	var der = _private2der(this.n, this.e, this.d, this.p, this.q, this.dp, this.dq, this.co);
-	der = hextob64(der);
-	var lines = str_splitAt(65).join("\n");
+	der = hex2b64(der);
+	var lines = der.splitAt(65).join("\n");
 	lines = "-----BEGIN RSA PRIVATE KEY-----\n"
 		+ lines
-		+ "-----END RSA PRIVATE KEY-----\n";
+		+ "\n-----END RSA PRIVATE KEY-----\n";
 	return lines;
 }
 
@@ -113,11 +132,11 @@ function _public2der(n, e) {
 	var my_n = _asn_pack_bigInt(n);
 	var my_e = _asn_pack_bigInt(e);
 	
-	var s = new ASNValue("SEQUENCE", "rsaEncryption: 1.2.840.113549.1.1.1");
-	var b = new ASNValue("BITSTRING", my_n + my_e);
-	s = new ASNValue("SEQUENCE", s.toString() + b.toString());
-	
-	return new ASNValue("SEQUENCE", s);
+	var s = new ASNValue("SEQUENCE", "rsaEncryption: 1.2.840.113549.1.1.1").encode();
+	var b = new ASNValue("BITSTRING", my_n + my_e).encode();
+	s = new ASNValue("SEQUENCE", s + b).encode();
+
+	return new ASNValue("SEQUENCE", s).encode().toHex();
 	
 }
 
@@ -125,5 +144,5 @@ function _public2der(n, e) {
 
 RSAKey.prototype.readPublicFromPEM = _rsapem_readPrivateKeyFromPEMString;
 RSAKey.prototype.readPrivateFromPEM = RSAKey.prototype.readPublicFromPEM;
-RSAKey.prototype.writePubToPEM = _public2pem;
-RSAKey.prototype.writeAllToPEM = _private2pem;
+RSAKey.prototype.pub2PEM = _public2pem;
+RSAKey.prototype.prv2PEM = _private2pem;
