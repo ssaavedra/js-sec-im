@@ -82,9 +82,9 @@ function _public2pem () {
 	var der = _public2der(this.n, this.e);
 	der = hex2b64(der);
 	var lines = der.splitAt(65).join("\n");
-	lines = "-----BEGIN RSA PUBLIC KEY-----\n"
-		+ lines
-		+ "\n-----END RSA PUBLIC KEY-----\n";
+	lines = "-----BEGIN RSA PUBLIC KEY-----\n" +
+			lines +
+			"\n-----END RSA PUBLIC KEY-----\n";
 	return lines;
 }
 
@@ -92,9 +92,9 @@ function _private2pem () {
 	var der = _private2der(this.n, this.e, this.d, this.p, this.q, this.dp, this.dq, this.co);
 	der = hex2b64(der);
 	var lines = der.splitAt(65).join("\n");
-	lines = "-----BEGIN RSA PRIVATE KEY-----\n"
-		+ lines
-		+ "\n-----END RSA PRIVATE KEY-----\n";
+	lines = "-----BEGIN RSA PRIVATE KEY-----\n" +
+			lines +
+			"\n-----END RSA PRIVATE KEY-----\n";
 	return lines;
 }
 
