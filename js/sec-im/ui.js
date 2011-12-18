@@ -2,6 +2,7 @@ dojo.provide("sec-im.ui");
 
 dojo.require("dijit.TitlePane");
 dojo.require("dijit.form.Form");
+dojo.require("dijit.form.Textarea");
 dojo.require("dijit.form.Button");
 dojo.require("dijit.form.NumberTextBox");
 
@@ -43,20 +44,28 @@ sec_im.ui = {
 	},
 	
 	showkey: {
+		form_id: 0,
 		ui: function(pubkey, prkey) {
 			var key = sec_im.rsa.key;
 			
 			
 			this.div = new dijit.form.Form({id:"showkey_form_" + this.form_id++});
 			this.pub = new dijit.form.Textarea({
+				id: "showkey_form_pubits",
 				name: "pubits",
+				style: "width:60em",
 				value: key.pub2PEM()
-			}, this.div.domNode);
+			});
 			
 			this.pri = new dijit.form.Textarea({
+				id: "showkey_form_prbits",
 				name: "prbits",
+				style: "width:60em",
 				value: key.prv2PEM()
-			}, this.div.domNode);
+			});
+			
+			this.pub.placeAt(this.div.domNode);
+			this.pri.placeAt(this.div.domNode);
 			
 			return this.div;
 		}
@@ -84,9 +93,10 @@ sec_im.ui = {
 			}
 		});
 		dojo.byId("canvas").appendChild(this.tp_show.domNode);
+		this.tp_show.set('content', sec_im.ui.showkey.ui());
 		
-		if(this.tp_show.open)
-			this.tp_show.toggle();
+		//if(this.tp_show.open)
+		//	this.tp_show.toggle();
 		
 	}
 	
