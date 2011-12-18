@@ -17,49 +17,79 @@ dojo.require("sec-im.rsa-pem");
  * Get RSA Key Instance by public and private parts
  * as returned by RSAKey.toString()
  */
-function RSAKeyInstance(public, private) {
+RSAKey.instance = function(serialized) {
+	var t = new RSAKey();
 	
+	t.setPrivateEx(N,E,D,P,Q,DP,DQ,C);
+	return t;
 }
 
-/**
- * Returns a 
- */
-function RSAKeyToString() {
-	
+RSAKey.prototype.serialize = function() {
+	var v = "n,e,d,p,q,dmp1,dmq1,coeff".split(",");
+	var o = {};
+	for(var i = 0; i < v.length; i++) {
+		o[v[i]] = this[v[i]].toString(16);
+	}
+	return JSON.stringify(o);
+}
+
+RSAKey.prototype.unserialize = function(str) {
+	var o = JSON.parse(str);
+	var v = "n,e,d,p,q,dmp1,dmq1,coeff".split(",");
+	var p = [];
+	for(var i = 0; i < v.length; i++) {
+		p.push(o[v[i]]);
+	}
+	this.setPrivateEx.apply(this, p);
 }
 
 
-
-function getUserKey() {
-	return getKeyByHash() || getKeyByLocalStorage() || generateKey();
-}
-
-function getKeyByHash() {
-	if(2 > window.location.hash.length)
-		return;
-	var h = window.location.hash.substring(1);
-	var pu, pr;
-	h = h.split("&");
-	for(x in h)
-		if(typeof h[x] == "string")
-			if(h[x].match(/^pu/))
-				pu = h[x];
-			if(h[x].match(/^pr/))
-				pr = h[x];
+sec_im.rsa = {
 	
-	if(typeof pr == "undefined"
-	|| typeof pu == "undefined") return;
-	
-	return RSAKey.instance(pu, pr);
-}
+	getKeyByHash: function() {
+		if(2 > window.location.hash.length)
+			return;
+		var h = window.location.hash.substring(1);
+		var pu, pr;
+		h = h.split("&");
+		for(x in h)
+			if(typeof h[x] == "string")
+				if(h[x].match(/^pu/))
+					pu = h[x];
+				if(h[x].match(/^pr/))
+					pr = h[x];
 
-function getKeyByLocalStorage() {
-	if(!window.localStorage) return;
-	if(!window.localStorage.rsa_pu) return;
-	if(!window.localStorage.rsa_pr) return;
-	
-	return RSAKey.instance(window.localStorage.rsa_pu,
-							window.localStorage.rsa_pr);
-}
+		if(typeof pr == "undefined"
+		|| typeof pu == "undefined") return;
 
+		return RSAKey.instance(pu, pr);
+	},
+	
+	getKeyByLocalStorage: function() {
+		if(!window.localStorage) return;
+		if(!window.localStorage.rsa) return;
+		
+		var t = new RSAKey();
+		t.unserialize(window.localStorage.rsa);
+		return t;
+	},
+	
+	
+	getSavedKey: function() {
+		return this.getKeyByHash() || this.getKeyByLocalStorage() || this.generateKey(1024, "65537");
+	},
+	
+	generateKey: function(bits, exp) {
+		var t = new RSAKey();
+		t.generate(bits, exp);
+		return t;
+	},
+	
+	saveKey: function(key) {
+		this.key = key;
+		if(!window.localStorage) return;
+		window.localStorage.rsa = this.key.serialize();
+	}
+}
+sec_im.rsa.key = sec_im.rsa.getSavedKey();
 

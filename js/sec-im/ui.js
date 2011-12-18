@@ -9,7 +9,6 @@ dojo.require("dijit.form.NumberTextBox");
 
 sec_im.ui = {
 	tp: null,
-	key: null,
 	
 	
 	genkey: {
@@ -27,6 +26,7 @@ sec_im.ui = {
 			this.tb.placeAt(this.f.domNode);
 			
 			this.btn = new dijit.form.Button({
+				id: "rsagen_btn",
 				label: "Generate Key",
 				onClick: function() {
 					sec_im.ui.genkey.generateAndShowKey(x.get('value'));
@@ -38,15 +38,13 @@ sec_im.ui = {
 		},
 		
 		generateAndShowKey: function(bits) {
-			sec_im.ui.key = new RSAKey();
-			sec_im.ui.key.generate(bits, "65537");
-			
+			sec_im.rsa.saveKey(sec_im.rsa.generateKey(bits, "65537"));
 		}
 	},
 	
 	showkey: {
 		ui: function(pubkey, prkey) {
-			var key = sec_im.ui.key;
+			var key = sec_im.rsa.key;
 			
 			
 			this.div = new dijit.form.Form({id:"showkey_form_" + this.form_id++});
