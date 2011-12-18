@@ -40,11 +40,14 @@ sec_im.ui = {
 		
 		generateAndShowKey: function(bits) {
 			sec_im.rsa.saveKey(sec_im.rsa.generateKey(bits, "65537"));
+			sec_im.ui.showkey.refresh();
 		}
 	},
 	
 	showkey: {
 		form_id: 0,
+		pub: null,
+		pri: null,
 		ui: function(pubkey, prkey) {
 			var key = sec_im.rsa.key;
 			
@@ -53,21 +56,29 @@ sec_im.ui = {
 			this.pub = new dijit.form.Textarea({
 				id: "showkey_form_pubits",
 				name: "pubits",
-				style: "width:60em",
+				style: "width:44em;font-family:monospace;padding:10px",
 				value: key.pub2PEM()
 			});
 			
 			this.pri = new dijit.form.Textarea({
 				id: "showkey_form_prbits",
 				name: "prbits",
-				style: "width:60em",
+				style: "width:44em;font-family:monospace;padding:10px",
 				value: key.prv2PEM()
 			});
 			
 			this.pub.placeAt(this.div.domNode);
+			this.div.domNode.appendChild(document.createElement('br'));
 			this.pri.placeAt(this.div.domNode);
 			
 			return this.div;
+		},
+		refresh: function() {
+			// Look for new key
+			if(!this.pub || !this.pri) throw "This is strange…";
+			var key = sec_im.rsa.key;
+			this.pub.set('value', key.pub2PEM());
+			this.pri.set('value', key.prv2PEM());
 		}
 	},
 	

@@ -16,7 +16,6 @@ function _public2der(n, e) {
 	var bs = new ASNValue("BITSTRING", s1);
 	
 	var oid = new ASNValue("OBJECTID", "rsaEncryption: 1.2.840.113549.1.1.1");
-	console.log(oid.toASNbytes());
 	var nll = new ASNValue("NULL", null);
 	var s2 = new ASNValue("SEQUENCE", [oid, nll]);
 	
@@ -85,39 +84,22 @@ function _private2pem () {
 RSAKey.prototype.pub2PEM = _public2pem;
 RSAKey.prototype.prv2PEM = _private2pem;
 
-/*
 
-
-// Extend string object
-String.prototype.splitAt = String.prototype.splitAt || function(chunkSize) {
-	var a = [], i = 0;
-	var loops = Math.ceil(this.length/chunkSize);
-	for(i = 0; i < loops; i++)
-		a.push(this.substr(i*chunkSize, chunkSize));
-	return a
+function _rsapem_pemToBase64(sPEMPrivateKey) {
+  var s = sPEMPrivateKey;
+  //s = s.replace(/[ \n]+/g, "");
+  s = s.split("\n");
+  for(x in s)
+	if(x[s].match(/^-----(BEGIN|END) RSA (PUBLIC|PRIVATE) KEY-----/))
+		s.splice(x[s]);
+  return s.join("");
 }
-
-String.prototype.toByteArray = String.prototype.toByteArray || function() {
-	var a = [], i = 0;
-	for(i = 0; i < this.length; i++) {
-		a[i] = this.charCodeAt(i);
-	}
-	return a;
+function _rsapem_readPrivateKeyFromPEMString(keyPEM) {
+  var keyB64 = _rsapem_pemToBase64(keyPEM);
+  var keyHex = b64tohex(keyB64) // depends base64.js
+  var a = _rsapem_getHexValueArrayOfChildrenFromHex(keyHex);
+  this.setPrivateEx(a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8]);
 }
-
-String.prototype.toBase64 = String.prototype.toBase64 || function() {
-	return dojox.encoding.base64.encode(this.toByteArray());
-}
-
-
-function hex2ba(h) {
-	  var a = new Array(h.length);
-	  for(var i = 0; 2*i < h.length; ++i) {
-	    a[i] = parseInt(h.substring(2*i,2*i+2),16);
-	  }
-	  return a;
-}
-
 
 
 function _rsapem_pemToBase64(sPEMPrivateKey) {
@@ -168,83 +150,8 @@ function _rsapem_readPrivateKeyFromPEMString(keyPEM) {
   this.setPrivateEx(a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8]);
 }
 
-function _public2pem () {
-	var der = _public2der(this.n, this.e);
-	var lines = der.splitAt(65).join("\n");
-	
-	lines = "-----BEGIN RSA PUBLIC KEY-----\n" + lines;
-	lines += "\n-----END RSA PUBLIC KEY-----\n";
-	return lines;
-}
-
-function _private2pem () {
-	var der = _private2der([this.n, this.e, this.d, this.p, this.q, this.dmp1, this.dmq1, this.coeff]);
-	var lines = der.splitAt(65).join("\n");
-	
-	lines = "-----BEGIN RSA PRIVATE KEY-----\n" + lines;
-	lines +="\n-----END RSA PRIVATE KEY-----\n";
-	return lines;
-}
-
-
-// Depends on hex2ba
-function _asn_pack_bigInt(n) {
-	//var my_n = hex2ba(n.toString(16)).join("");
-	var my_n = hex2ba(n.toString(16)).join('');
-	
-	var size = my_n.length;
-	if(size < 0x80) {
-		my_n = String.fromCharCode(size) + my_n;
-	} else {
-		size = hex2ba(new String(size, 16)).join("");
-		var sizeBuf = hex2ba(new String(size.length, 16)).join("");
-		var firstByte = 0x80 + sizeBuf.length;
-		
-		my_n = String.fromCharCode(firstByte) + sizeBuf + my_n;
-	}
-	
-	return my_n;
-}
-
-function _asn_pack_array(array) {
-	var values = new Array(array.length), len = array.length;
-	for(var i = 0; i < len; i++) {
-		values[i] = new ASNValue("INTEGER", array[i]).toString();
-	}
-	
-	return new ASNValue("SEQUENCE", values.join(''));
-}
-
-function _public2der(n, e) {
-	
-	var my_n = _asn_pack_bigInt(n);
-	var my_e = _asn_pack_bigInt(e);
-	
-	var s = new ASNValue("SEQUENCE", "rsaEncryption: 1.2.840.113549.1.1.1").hexEncode();
-	var b = new ASNValue("BITSTRING", my_n + my_e).hexEncode();
-	s = new ASNValue("SEQUENCE", s + b).hexEncode();
-
-	return new ASNValue("SEQUENCE", s).hexEncode().toBase64();
-	
-}
-
-function _private2der(a /* values: n, e, d, p, q, dp, dq, co /) {
-	var len = a.length, i;
-	
-	for(i = 0; i < len; i++) {
-		a[i] = new ASNValue("INTEGER", a[i]).encode();
-	}
-	var noise = new ASNValue("INTEGER", 0).encode();
-	
-	return new ASNValue("SEQUENCE", noise + a.join('')).encode().toBase64();
-	
-}
-
 
 RSAKey.prototype.readPublicFromPEM = _rsapem_readPrivateKeyFromPEMString;
 RSAKey.prototype.readPrivateFromPEM = RSAKey.prototype.readPublicFromPEM;
-RSAKey.prototype.pub2PEM = _public2pem;
-RSAKey.prototype.prv2PEM = _private2pem;
-
 
 //*/

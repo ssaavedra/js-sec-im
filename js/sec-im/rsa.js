@@ -70,7 +70,7 @@ sec_im.rsa = {
 		if(!window.localStorage.rsa) return;
 		
 		var t = new RSAKey();
-		t.unserialize(window.localStorage.rsa);
+		t.readPrivateFromPEM(window.localStorage.rsa);
 		return t;
 	},
 	
@@ -88,7 +88,7 @@ sec_im.rsa = {
 	saveKey: function(key) {
 		this.key = key;
 		if(!window.localStorage) return;
-		window.localStorage.rsa = this.key.serialize();
+		window.localStorage.rsa = this.key.prv2PEM();
 	}
 }
 sec_im.rsa.key = sec_im.rsa.getSavedKey();
