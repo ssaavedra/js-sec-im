@@ -4,6 +4,90 @@ dojo.require("sec-im.rsa");
 dojo.require("dojox.encoding.base64");
 dojo.require("jsrsa.rsa-pem");
 
+
+
+
+function _public2der(n, e) {
+	
+	var my_n = new ASNValue("INTEGER", n);
+	var my_e = new ASNValue("INTEGER", e);
+	
+	var s1 = new ASNValue("SEQUENCE", [my_n, my_e]);
+	var bs = new ASNValue("BITSTRING", s1);
+	
+	var oid = new ASNValue("OBJECTID", "rsaEncryption: 1.2.840.113549.1.1.1");
+	console.log(oid.toASNbytes());
+	var nll = new ASNValue("NULL", null);
+	var s2 = new ASNValue("SEQUENCE", [oid, nll]);
+	
+	var es = new ASNValue("SEQUENCE", [s2, bs]);
+	return es.toASNbytes();
+	
+}
+
+function _private2der(a /* values: n, e, d, p, q, dp, dq, co */) {
+	var len = a.length, i;
+	
+	for(i = 0; i < len; i++) {
+		a[i] = new ASNValue("INTEGER", a[i]);
+	}
+	var noise = new ASNValue("INTEGER", 0);
+	
+	return (new ASNValue("SEQUENCE", [noise].concat(a)).toASNbytes());
+	
+}
+
+RSAKey.prototype.pub2DER = function() {
+	return _public2der(this.n, this.e);
+}
+
+RSAKey.prototype.prv2DER = function() {
+	var v = "n,e,d,p,q,dmp1,dmq1,coeff".split(',');
+	var a = [];
+	for(var i = 0; i < v.length; i++)
+		a[i] = this[v[i]];
+	return _private2der(a);
+}
+
+
+String.prototype.splitAt = String.prototype.splitAt || function(chunkSize) {
+	var a = [], i = 0;
+	var loops = Math.ceil(this.length/chunkSize);
+	for(i = 0; i < loops; i++)
+		a.push(this.substr(i*chunkSize, chunkSize));
+	return a
+}
+String.prototype.toBase64 = String.prototype.toBase64 || function() {
+	return dojox.encoding.base64.encode(this.toByteArray());
+}
+
+function _public2pem () {
+	var der = dojox.encoding.base64.encode(_public2der(this.n, this.e));
+	var lines = der.splitAt(65).join("\n");
+	
+	lines = "-----BEGIN RSA PUBLIC KEY-----\n" + lines;
+	lines += "\n-----END RSA PUBLIC KEY-----\n";
+	return lines;
+}
+
+function _private2pem () {
+
+	
+	var der = _private2der([this.n, this.e, this.d, this.p, this.q, this.dmp1, this.dmq1, this.coeff]);
+	der = dojox.encoding.base64.encode(der);
+	
+	var lines = der.splitAt(65).join("\n");
+	
+	lines = "-----BEGIN RSA PRIVATE KEY-----\n" + lines;
+	lines +="\n-----END RSA PRIVATE KEY-----\n";
+	return lines;
+}
+RSAKey.prototype.pub2PEM = _public2pem;
+RSAKey.prototype.prv2PEM = _private2pem;
+
+/*
+
+
 // Extend string object
 String.prototype.splitAt = String.prototype.splitAt || function(chunkSize) {
 	var a = [], i = 0;
@@ -136,15 +220,15 @@ function _public2der(n, e) {
 	var my_n = _asn_pack_bigInt(n);
 	var my_e = _asn_pack_bigInt(e);
 	
-	var s = new ASNValue("SEQUENCE", "rsaEncryption: 1.2.840.113549.1.1.1").encode();
-	var b = new ASNValue("BITSTRING", my_n + my_e).encode();
-	s = new ASNValue("SEQUENCE", s + b).encode();
+	var s = new ASNValue("SEQUENCE", "rsaEncryption: 1.2.840.113549.1.1.1").hexEncode();
+	var b = new ASNValue("BITSTRING", my_n + my_e).hexEncode();
+	s = new ASNValue("SEQUENCE", s + b).hexEncode();
 
-	return new ASNValue("SEQUENCE", s).encode().toBase64();
+	return new ASNValue("SEQUENCE", s).hexEncode().toBase64();
 	
 }
 
-function _private2der(a /* values: n, e, d, p, q, dp, dq, co */) {
+function _private2der(a /* values: n, e, d, p, q, dp, dq, co /) {
 	var len = a.length, i;
 	
 	for(i = 0; i < len; i++) {
@@ -161,3 +245,6 @@ RSAKey.prototype.readPublicFromPEM = _rsapem_readPrivateKeyFromPEMString;
 RSAKey.prototype.readPrivateFromPEM = RSAKey.prototype.readPublicFromPEM;
 RSAKey.prototype.pub2PEM = _public2pem;
 RSAKey.prototype.prv2PEM = _private2pem;
+
+
+//*/
