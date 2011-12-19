@@ -13,3 +13,28 @@ section#footer {
 	font-size: 0.8em;
 }
 
+.chat.message {
+	position:relative;
+	background-color: inherit;
+	border: 1px solid #ddd;
+	padding: 2px;
+	padding-bottom: 5px;
+	border-bottom: none;
+	margin-bottom: none;
+	clear:both;
+}
+
+.chat.inner {
+	clear:both;
+}
+
+.author {
+	float:left;
+	position:relative;
+}
+
+timestamp {
+	float:right;
+	position:relative;
+	font-size: 0.8em;
+}

@@ -8,7 +8,7 @@ dojo.require("dijit.form.NumberTextBox");
 
 // Get User Interface
 
-sec_im.ui = {
+sec_im.ui = dojo.mixin(sec_im.ui, {
 	tp: null,
 	
 	
@@ -83,6 +83,17 @@ sec_im.ui = {
 	},
 	
 	onLoad: function() {
+		dojo.require("sec-im.ui.chat");
+		
+		this.tp_chat = new dijit.TitlePane({
+			title: "Chat utility",
+			content: ""
+		});
+		dojo.byId("canvas").appendChild(this.tp_chat.domNode);
+		
+		this.tp_chat.set('content', sec_im.ui.chat.ui());
+		
+		
 		this.tp_gen = new dijit.TitlePane({
 			title: "Generate RSA Key",
 			content: ""
@@ -90,7 +101,7 @@ sec_im.ui = {
 		dojo.byId("canvas").appendChild(this.tp_gen.domNode);
 		
 		this.tp_gen.set('content', sec_im.ui.genkey.form_ui());
-		
+		this.tp_gen.open && this.tp_gen.toggle();
 		
 		this.tp_show = new dijit.TitlePane({
 			title: "Show RSA Key in use",
@@ -106,12 +117,12 @@ sec_im.ui = {
 		dojo.byId("canvas").appendChild(this.tp_show.domNode);
 		this.tp_show.set('content', sec_im.ui.showkey.ui());
 		
-		//if(this.tp_show.open)
-		//	this.tp_show.toggle();
+		if(this.tp_show.open)
+			this.tp_show.toggle();
 		
 	}
 	
-};
+});
 
 dojo.addOnLoad(sec_im.ui.onLoad);
 
